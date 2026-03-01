@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>南極スライダー👑</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /* * 👑 GIGA Game Architect - CSS Design
+     * テーマ：Modern Pop & Playful (Ice Version ❄️)
+     * ==========================================
+     */
+
+    /* 1. フォントと全体設定 */
+    :root {
+      --primary-color: #1a73e8;
+      --accent-color: #ffca28;
+      --p1-color: #00C2CB;
+      --p2-color: #FF8BA7;
+      --ice-bg: #e3f2fd;
+      --font-main: 'Zen Maru Gothic', sans-serif;
+      --header-height: 70px;
+      --footer-height: 60px;
+    }
+
+    body {
+      font-family: var(--font-main);
+      color: #444;
+      background-color: #fff9c4;
+      background-image: radial-gradient(#ffe082 20%, transparent 20%), radial-gradient(#ffe082 20%, transparent 20%);
+      background-position: 0 0, 25px 25px;
+      background-size: 50px 50px;
+      
+      /* 固定ヘッダー・フッター分の余白 */
+      padding-top: var(--header-height);
+      padding-bottom: var(--footer-height);
+      
+      height: 100vh;
+      overflow: hidden; /* スクロール防止 */
+      display: flex;
+      flex-direction: column;
+    }
+
+    rt { font-size: 0.6em; color: #666; font-weight: normal; }
+
+    /* 2. ヘッダー (固定) */
+    .fixed-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    /* 3. ゲームエリア (画面中央に大きく) */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* 垂直方向中央 */
+      align-items: center;     /* 水平方向中央 */
+      position: relative;
+      width: 100%;
+    }
+
+    /* ターン表示 */
+    #turn-indicator {
+      font-size: clamp(1rem, 3vh, 1.5rem);
+      font-weight: bold;
+      padding: 0.5em 1.5em;
+      border-radius: 50rem;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2vh;
+      z-index: 100;
+    }
+    .turn-p1 { color: var(--p1-color); border: 3px solid var(--p1-color); }
+    .turn-p2 { color: var(--p2-color); border: 3px solid var(--p2-color); }
+
+    /* 盤面コンテナ */
+    #game-board-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      padding: 10px;
+      
+      /* ★盤面の大きさ調整★ */
+      width: min(90vw, 65vh);
+      height: min(90vw, 65vh);
+      
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 4px;
+      background-color: #bbdefb;
+      padding: 4px;
+      border-radius: 12px;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    /* マス目 */
+    .cell {
+      background-color: var(--ice-bg);
+      border-radius: 6px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), inset -2px -2px 5px rgba(0,0,0,0.05);
+    }
+    .cell.goal { background-color: #fff8e1; border: 2px dashed var(--accent-color); }
+    .cell.goal::before {
+      content: '🍧';
+      font-size: clamp(1rem, 5vmin, 2.5rem); /* サイズ自動調整 */
+      opacity: 0.5;
+      filter: grayscale(100%);
+    }
+    .cell.goal.active::before { filter: none; opacity: 1; animation: pulse 1s infinite; }
+
+    /* 4. コマのスタイル */
+    .piece {
+      width: 17%;
+      height: 17%;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      
+      font-size: clamp(1.5rem, 6vmin, 3rem);
+      
+      cursor: pointer;
+      position: absolute;
+      /* ★アニメーション調整: 滑る動きをよりスムーズかつ少しバネっぽく */
+      transition: top 0.4s cubic-bezier(0.25, 1, 0.5, 1), left 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.2s;
+      z-index: 10;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 -4px 4px rgba(0,0,0,0.1);
+      user-select: none;
+      
+      /* 中心基準での変形を有効にする */
+      transform-origin: center;
+    }
+
+    /* プレイヤー色 */
+    .piece.p1 { background-color: var(--p1-color); border: 2px solid #fff; }
+    .piece.p1::after { content: '🐧'; }
+
+    .piece.p2 { background-color: var(--p2-color); border: 2px solid #fff; }
+    .piece.p2::after { content: '🦭'; }
+
+    /* 王冠 */
+    .piece.king { box-shadow: 0 0 15px var(--accent-color); z-index: 11; }
+    .piece.king::before {
+      content: '👑';
+      position: absolute;
+      top: -25%; right: -20%;
+      font-size: 0.7em;
+      animation: float 2s ease-in-out infinite;
+      text-shadow: 0 2px 2px rgba(0,0,0,0.3);
+    }
+
+    /* 選択中 */
+    .piece.selected {
+      transform: translate(-50%, -50%) scale(1.2) !important;
+      box-shadow: 0 0 0 4px var(--accent-color);
+      z-index: 20;
+    }
+
+    /* * ★リッチアニメーション定義 
+     */
+
+    /* 1. 移動中の変形 (ストレッチ) */
+    /* 横移動: 横に伸びて縦に縮む */
+    .piece.move-left, .piece.move-right {
+      transform: translate(-50%, -50%) scale(1.2, 0.8) !important;
+      z-index: 100; /* 移動中は最前面 */
+    }
+    /* 縦移動: 縦に伸びて横に縮む */
+    .piece.move-up, .piece.move-down {
+      transform: translate(-50%, -50%) scale(0.8, 1.2) !important;
+      z-index: 100;
+    }
+
+    /* 2. 衝突時の衝撃 (バウンド/スクウォッシュ) */
+    .piece.impact {
+      animation: impactBounce 0.3s ease-out forwards;
+    }
+
+    @keyframes impactBounce {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      30% { transform: translate(-50%, -50%) scale(1.3, 0.7); } /* 潰れる */
+      60% { transform: translate(-50%, -50%) scale(0.9, 1.1); } /* 少し伸びる */
+      100% { transform: translate(-50%, -50%) scale(1); }    /* 元に戻る */
+    }
+
+    /* アニメーション */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* ルールモーダル用 */
+    .rule-modal-container { text-align: left; font-size: 1.1rem; }
+    .rule-step { background: #f8f9fa; border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 2px solid #e0e0e0; }
+    .rule-title { font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; }
+    .rule-badge { background: var(--accent-color); color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; }
+    .rule-visual { background: var(--ice-bg); border-radius: 10px; padding: 10px; margin-top: 10px; text-align: center; font-size: 1.8rem; }
+  </style>
+</head>
+<body>
+
+  <!-- 固定ヘッダー -->
+  <header class="fixed-header justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <span style="font-size: 1.5rem;">👑</span>
+      <span class="fw-bold text-primary" style="font-size: 1.2rem;"><ruby>南極<rt>なんきょく</rt></ruby>スライダー</span>
+    </div>
+    
+    <div class="d-flex gap-2">
+      <!-- リセットボタン (定位置) -->
+      <button class="btn btn-outline-secondary rounded-circle" onclick="initGame()" style="width: 40px; height: 40px; padding: 0;" title="最初からやりなおす">
+        🔄
+      </button>
+      <!-- ★追加★ ランダムボタン (サイコロ) -->
+      <button class="btn btn-outline-info rounded-circle" onclick="initRandomGame()" style="width: 40px; height: 40px; padding: 0; font-size: 1.2rem;" title="ランダム配置">
+        🎲
+      </button>
+      <!-- ヘルプボタン -->
+      <button class="btn btn-warning text-white rounded-circle fw-bold" onclick="showRules()" style="width: 40px; height: 40px; padding: 0;">
+        ？
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main>
+    <!-- ターン表示 -->
+    <div id="turn-indicator" class="turn-p1">
+      <ruby>準備中<rt>じゅんびちゅう</rt></ruby>...
+    </div>
+
+    <!-- 盤面エリア -->
+    <div id="game-board-container">
+      <div id="game-board">
+        <!-- JSで生成 -->
+      </div>
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="fixed-bottom bg-white border-top text-center py-3 text-muted">
+    <small>© 2026 南極スライダー <a href="https://note.com/cute_borage86" target="_blank" class="text-decoration-none text-muted">GIGA山</a></small>
+  </footer>
+
+  <script>
+    /**
+     * 👑 GIGA Game Architect - Game Logic (Swipe & Rich Animation Version)
+     * テーマ：ツルツル！氷上の大運動会 🐧🆚🦭
+     */
+
+    const BOARD_SIZE = 5;
+    const GOAL_POS = { row: 2, col: 2 };
+
+    const PIECE = {
+      EMPTY: 0,
+      P1_SUB: 11, P1_MAIN: 12,
+      P2_SUB: 21, P2_MAIN: 22,
+      GOAL: 99
+    };
+
+    let gameState = {
+      board: [],
+      currentPlayer: 1,
+      winner: null,
+      isAnimating: false
+    };
+
+    let selectedPiece = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initGame();
+      setupControls();
+    });
+
+    // 通常の初期配置（定位置）
+    function initGame() {
+      gameState.board = [
+        [11, 11, 12, 11, 11],
+        [0,  0,  0,  0,  0],
+        [0,  0, 99,  0,  0],
+        [0,  0,  0,  0,  0],
+        [21, 21, 22, 21, 21]
+      ];
+      
+      resetGameState();
+    }
+
+    /**
+     * ★追加★ ランダム配置でゲームを開始する関数
+     */
+    function initRandomGame() {
+      // 1. 盤面を空で初期化
+      const board = Array(BOARD_SIZE).fill(0).map(() => Array(BOARD_SIZE).fill(PIECE.EMPTY));
+      
+      // 2. ゴール設置
+      board[GOAL_POS.row][GOAL_POS.col] = PIECE.GOAL;
+
+      // 3. 配置可能な座標リストを作成（ゴール以外）
+      // ゴール地点(2,2)を除外することで、王冠がいきなりゴールに置かれるのを防ぎます
+      let availablePositions = [];
+      for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          if (r === GOAL_POS.row && c === GOAL_POS.col) continue; 
+          availablePositions.push({ r, c });
+        }
+      }
+
+      // 4. 座標をシャッフル (Fisher-Yates shuffle)
+      for (let i = availablePositions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [availablePositions[i], availablePositions[j]] = [availablePositions[j], availablePositions[i]];
+      }
+
+      // 5. 配置する駒のリスト (P1:5個, P2:5個)
+      const pieces = [
+        PIECE.P1_MAIN, PIECE.P1_SUB, PIECE.P1_SUB, PIECE.P1_SUB, PIECE.P1_SUB,
+        PIECE.P2_MAIN, PIECE.P2_SUB, PIECE.P2_SUB, PIECE.P2_SUB, PIECE.P2_SUB
+      ];
+
+      // 6. 駒を配置
+      for (let i = 0; i < pieces.length; i++) {
+        const pos = availablePositions[i];
+        board[pos.r][pos.c] = pieces[i];
+      }
+
+      gameState.board = board;
+      resetGameState();
+
+      // 通知トースト
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: false,
+      });
+      Toast.fire({
+        icon: 'info',
+        title: 'サイコロをふってバラバラになりました！🎲'
+      });
+    }
+
+    // 共通のリセット処理
+    function resetGameState() {
+      gameState.currentPlayer = 1;
+      gameState.winner = null;
+      gameState.isAnimating = false;
+      selectedPiece = null;
+
+      renderBoard();
+      updateTurnDisplay();
+    }
+
+    function renderBoard() {
+      const boardEl = document.getElementById('game-board');
+      boardEl.innerHTML = '';
+
+      for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          if (r === GOAL_POS.row && c === GOAL_POS.col) {
+            cell.classList.add('goal');
+            if (gameState.board[r][c] !== PIECE.GOAL && gameState.board[r][c] !== PIECE.EMPTY) {
+              cell.classList.add('active');
+            }
+          }
+          boardEl.appendChild(cell);
+        }
+      }
+
+      for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          const type = gameState.board[r][c];
+          if (type !== PIECE.EMPTY && type !== PIECE.GOAL) {
+            createPieceElement(r, c, type);
+          }
+        }
+      }
+    }
+
+    function createPieceElement(row, col, type) {
+      const boardEl = document.getElementById('game-board');
+      const piece = document.createElement('div');
+      
+      piece.className = 'piece';
+      if (type === PIECE.P1_SUB || type === PIECE.P1_MAIN) piece.classList.add('p1');
+      if (type === PIECE.P2_SUB || type === PIECE.P2_MAIN) piece.classList.add('p2');
+      if (type === PIECE.P1_MAIN || type === PIECE.P2_MAIN) piece.classList.add('king');
+
+      setPosition(piece, row, col);
+
+      const isMyPiece = (gameState.currentPlayer === 1 && type < 20) || 
+                        (gameState.currentPlayer === 2 && type > 20);
+      
+      if (isMyPiece && !gameState.winner) {
+        piece.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          selectPiece(row, col, piece);
+        });
+      }
+
+      piece.id = `piece-${row}-${col}`;
+      boardEl.appendChild(piece);
+    }
+
+    function setPosition(element, row, col) {
+      element.style.top = (row * 20 + 10) + '%';
+      element.style.left = (col * 20 + 10) + '%';
+      if (!element.classList.contains('move-up') && 
+          !element.classList.contains('move-down') && 
+          !element.classList.contains('move-left') && 
+          !element.classList.contains('move-right')) {
+          element.style.transform = 'translate(-50%, -50%)';
+      }
+    }
+
+    function updateTurnDisplay() {
+      const indicator = document.getElementById('turn-indicator');
+      const p1Name = "🐧 ペンギン";
+      const p2Name = "🦭 アザラシ";
+
+      if (gameState.currentPlayer === 1) {
+        indicator.innerHTML = `<ruby>${p1Name}のばん`;
+        indicator.className = 'turn-p1';
+      } else {
+        indicator.innerHTML = `<ruby>${p2Name}のばん`;
+        indicator.className = 'turn-p2';
+      }
+    }
+
+    function selectPiece(row, col, element) {
+      if (gameState.isAnimating || gameState.winner) return;
+
+      document.querySelectorAll('.piece.selected').forEach(el => el.classList.remove('selected'));
+      selectedPiece = { row, col };
+      element.classList.add('selected');
+    }
+
+    function setupControls() {
+      document.addEventListener('keydown', (e) => {
+        const keyMap = {
+          'ArrowUp': 'up', 'ArrowDown': 'down', 
+          'ArrowLeft': 'left', 'ArrowRight': 'right',
+          'w': 'up', 's': 'down', 'a': 'left', 'd': 'right'
+        };
+        if (keyMap[e.key]) tryMove(keyMap[e.key]);
+      });
+
+      document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, {passive: false});
+
+      document.addEventListener('touchend', (e) => {
+        if (!selectedPiece || gameState.isAnimating) return;
+        
+        const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
+        
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+        
+        if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return; 
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+          tryMove(dx > 0 ? 'right' : 'left');
+        } else {
+          tryMove(dy > 0 ? 'down' : 'up');
+        }
+      }, {passive: false});
+    }
+
+    function tryMove(direction) {
+      if (!selectedPiece || gameState.isAnimating || gameState.winner) return;
+
+      const { row, col } = selectedPiece;
+      const pieceType = gameState.board[row][col];
+      const pieceEl = document.getElementById(`piece-${row}-${col}`);
+
+      const target = calculateSlideTarget(row, col, direction);
+
+      if (target.row === row && target.col === col) return;
+
+      gameState.isAnimating = true;
+      gameState.board[row][col] = (row === 2 && col === 2) ? PIECE.GOAL : PIECE.EMPTY;
+      
+      const moveClass = `move-${direction}`;
+      pieceEl.classList.add(moveClass);
+      pieceEl.classList.remove('selected');
+
+      pieceEl.id = `piece-${target.row}-${target.col}`;
+      pieceEl.style.top = (target.row * 20 + 10) + '%';
+      pieceEl.style.left = (target.col * 20 + 10) + '%';
+
+      setTimeout(() => {
+        pieceEl.classList.remove(moveClass);
+        pieceEl.classList.add('impact');
+
+        setTimeout(() => {
+          pieceEl.classList.remove('impact');
+          
+          gameState.board[target.row][target.col] = pieceType;
+          selectedPiece = null;
+          gameState.isAnimating = false;
+
+          checkWin(pieceType, target.row, target.col);
+
+          if (!gameState.winner) {
+            gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+            updateTurnDisplay();
+            renderBoard();
+          }
+        }, 300);
+        
+      }, 400);
+    }
+
+    function calculateSlideTarget(startRow, startCol, direction) {
+      let r = startRow;
+      let c = startCol;
+      const vectors = { 'up': [-1, 0], 'down': [1, 0], 'left': [0, -1], 'right': [0, 1] };
+      const [dr, dc] = vectors[direction];
+
+      while (true) {
+        const nextR = r + dr;
+        const nextC = c + dc;
+        if (nextR < 0 || nextR >= BOARD_SIZE || nextC < 0 || nextC >= BOARD_SIZE) break;
+        const cellType = gameState.board[nextR][nextC];
+        if (cellType !== PIECE.EMPTY && cellType !== PIECE.GOAL) break;
+        r = nextR;
+        c = nextC;
+      }
+      return { row: r, col: c };
+    }
+
+    function checkWin(pieceType, row, col) {
+      const isKing = (pieceType === PIECE.P1_MAIN || pieceType === PIECE.P2_MAIN);
+      const isGoal = (row === GOAL_POS.row && col === GOAL_POS.col);
+      if (isKing && isGoal) {
+        gameState.winner = gameState.currentPlayer;
+        showWinModal();
+      }
+    }
+
+    function showWinModal() {
+      const winnerName = gameState.winner === 1 ? "ペンギンチーム 🐧" : "アザラシチーム 🦭";
+      const color = gameState.winner === 1 ? '#00C2CB' : '#FF8BA7';
+      
+      Swal.fire({
+        title: '🎉 おめでとう！ 🎉',
+        html: `<h2 style="color:${color}">${winnerName}のかち！</h2>`,
+        icon: 'success',
+        confirmButtonText: 'もういちどあそぶ',
+        allowOutsideClick: false
+      }).then(() => {
+        initGame();
+      });
+    }
+
+    function showRules() {
+      Swal.fire({
+        title: '🧊 あそびかた',
+        width: 600,
+        html: `
+          <div class="rule-modal-container">
+            <div class="rule-step">
+              <div class="rule-title"><span class="rule-badge">1</span> コマをえらぶ</div>
+              <div class="rule-visual">👆 🐧</div>
+            </div>
+            <div class="rule-step">
+              <div class="rule-title"><span class="rule-badge">2</span> スワイプですべる</div>
+              <div class="rule-visual">💨 <ruby>氷<rt>こおり</rt></ruby>の<ruby>上<rt>うえ</rt></ruby>をスイスイ！</div>
+              <p class="text-center mt-2 small"><ruby>指<rt>ゆび</rt></ruby>で<ruby>画面<rt>がめん</rt></ruby>をなぞるか、<ruby>矢印<rt>やしるし</rt></ruby>キーをおしてね</p>
+            </div>
+            <div class="rule-step" style="border-color:var(--accent-color)">
+              <div class="rule-title"><span class="rule-badge">3</span> <ruby>王冠<rt>おうかん</rt></ruby>をゴールへ</div>
+              <div class="rule-visual">👑 ➡ 🎯🍧</div>
+            </div>
+          </div>
+        `,
+        confirmButtonText: 'わかった！'
+      });
+    }
+  </script>
+</body>
+</html>
