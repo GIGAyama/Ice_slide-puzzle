@@ -3,15 +3,24 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="氷の上をツルツル滑るコマを操って王冠をゴールへ導く、2人対戦型ボードゲーム">
+  <meta name="theme-color" content="#ffffff">
   <title>南極スライダー👑</title>
-  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="南極スライダー">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="icon" href="favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="vendor/sweetalert2.all.min.js" defer></script>
 
   <style>
     /* * 👑 GIGA Game Architect - CSS Design
@@ -27,29 +36,43 @@
       --p2-color: #FF8BA7;
       --ice-bg: #e3f2fd;
       --font-main: 'Zen Maru Gothic', sans-serif;
-      --header-height: 70px;
-      --footer-height: 60px;
+      --header-height: 56px;
+      --footer-height: 34px;
+      /* ターン表示＋余白ぶんの予約領域 */
+      --reserved-height: 88px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
+      margin: 0;
       font-family: var(--font-main);
       color: #444;
       background-color: #fff9c4;
       background-image: radial-gradient(#ffe082 20%, transparent 20%), radial-gradient(#ffe082 20%, transparent 20%);
       background-position: 0 0, 25px 25px;
       background-size: 50px 50px;
-      
+
       /* 固定ヘッダー・フッター分の余白 */
-      padding-top: var(--header-height);
-      padding-bottom: var(--footer-height);
-      
+      padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px));
+
+      /* モバイルブラウザのアドレスバーを考慮した高さ */
       height: 100vh;
+      height: 100dvh;
       overflow: hidden; /* スクロール防止 */
+      overscroll-behavior: none;
       display: flex;
       flex-direction: column;
     }
 
     rt { font-size: 0.6em; color: #666; font-weight: normal; }
+
+    a { color: inherit; }
 
     /* 2. ヘッダー (固定) */
     .fixed-header {
@@ -57,15 +80,59 @@
       top: 0;
       left: 0;
       right: 0;
-      height: var(--header-height);
+      height: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+      padding-top: env(safe-area-inset-top, 0px);
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(5px);
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       z-index: 1000;
       display: flex;
       align-items: center;
-      padding: 0 20px;
+      justify-content: space-between;
+      padding-left: 16px;
+      padding-right: 16px;
     }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .header-title .logo { font-size: 1.4rem; }
+    .header-title .name {
+      font-weight: 700;
+      color: var(--primary-color);
+      font-size: clamp(0.95rem, 3.5vw, 1.2rem);
+      white-space: nowrap;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.1rem;
+      font-family: inherit;
+      font-weight: 700;
+      background: #fff;
+      cursor: pointer;
+      transition: transform 0.1s, background-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn:active { transform: scale(0.9); }
+    .btn-reset { border: 2px solid #adb5bd; color: #6c757d; }
+    .btn-random { border: 2px solid #0dcaf0; color: #0dcaf0; }
+    .btn-help { border: 2px solid var(--accent-color); background: var(--accent-color); color: #fff; }
 
     /* 3. ゲームエリア (画面中央に大きく) */
     main {
@@ -76,6 +143,8 @@
       align-items: center;     /* 水平方向中央 */
       position: relative;
       width: 100%;
+      min-height: 0;
+      touch-action: none; /* スワイプ操作をブラウザに奪われないようにする */
     }
 
     /* ターン表示 */
@@ -88,6 +157,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       margin-bottom: 2vh;
       z-index: 100;
+      white-space: nowrap;
     }
     .turn-p1 { color: var(--p1-color); border: 3px solid var(--p1-color); }
     .turn-p2 { color: var(--p2-color); border: 3px solid var(--p2-color); }
@@ -98,14 +168,39 @@
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.15);
       padding: 10px;
-      
-      /* ★盤面の大きさ調整★ */
-      width: min(90vw, 65vh);
-      height: min(90vw, 65vh);
-      
+
+      /* ★盤面の大きさ: 画面の空きスペースいっぱいに広げる★ */
+      width: min(94vw, calc(100vh - var(--header-height) - var(--footer-height) - var(--reserved-height)), 700px);
+      width: min(94vw, calc(100dvh - var(--header-height) - var(--footer-height) - var(--reserved-height)), 700px);
+      aspect-ratio: 1 / 1;
+
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+
+    /* 横長の画面 (スマホ横持ちなど): フッターを隠し、ターン表示を横に並べる */
+    @media (max-height: 540px) {
+      :root {
+        --footer-height: 0px;
+        --reserved-height: 0px;
+      }
+      footer.fixed-footer { display: none; }
+      main {
+        flex-direction: row;
+        gap: 16px;
+        padding: 0 8px;
+      }
+      #turn-indicator {
+        margin-bottom: 0;
+        font-size: clamp(0.85rem, 2.5vh, 1.1rem);
+        padding: 0.4em 0.9em;
+      }
+      #game-board-container {
+        width: auto;
+        height: min(calc(100vh - var(--header-height) - 20px), calc(94vw - 160px));
+        height: min(calc(100dvh - var(--header-height) - 20px), calc(94vw - 160px));
+      }
     }
 
     #game-board {
@@ -148,17 +243,20 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      
+
       font-size: clamp(1.5rem, 6vmin, 3rem);
-      
-      cursor: pointer;
+
+      cursor: grab;
       position: absolute;
       /* ★アニメーション調整: 滑る動きをよりスムーズかつ少しバネっぽく */
       transition: top 0.4s cubic-bezier(0.25, 1, 0.5, 1), left 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.2s;
       z-index: 10;
       box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 -4px 4px rgba(0,0,0,0.1);
       user-select: none;
-      
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+
       /* 中心基準での変形を有効にする */
       transform-origin: center;
     }
@@ -188,7 +286,7 @@
       z-index: 20;
     }
 
-    /* * ★リッチアニメーション定義 
+    /* * ★リッチアニメーション定義
      */
 
     /* 1. 移動中の変形 (ストレッチ) */
@@ -226,34 +324,54 @@
       100% { transform: scale(1); }
     }
 
+    /* フッター */
+    .fixed-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: #fff;
+      border-top: 1px solid #dee2e6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #6c757d;
+      z-index: 1000;
+    }
+    .fixed-footer a { text-decoration: none; }
+
     /* ルールモーダル用 */
     .rule-modal-container { text-align: left; font-size: 1.1rem; }
     .rule-step { background: #f8f9fa; border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 2px solid #e0e0e0; }
     .rule-title { font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; }
-    .rule-badge { background: var(--accent-color); color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; }
+    .rule-badge { background: var(--accent-color); color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; flex-shrink: 0; }
     .rule-visual { background: var(--ice-bg); border-radius: 10px; padding: 10px; margin-top: 10px; text-align: center; font-size: 1.8rem; }
+    .rule-note { text-align: center; margin: 8px 0 0; font-size: 0.85rem; }
   </style>
 </head>
 <body>
 
   <!-- 固定ヘッダー -->
-  <header class="fixed-header justify-content-between">
-    <div class="d-flex align-items-center gap-2">
-      <span style="font-size: 1.5rem;">👑</span>
-      <span class="fw-bold text-primary" style="font-size: 1.2rem;"><ruby>南極<rt>なんきょく</rt></ruby>スライダー</span>
+  <header class="fixed-header">
+    <div class="header-title">
+      <span class="logo">👑</span>
+      <span class="name"><ruby>南極<rt>なんきょく</rt></ruby>スライダー</span>
     </div>
-    
-    <div class="d-flex gap-2">
+
+    <div class="header-buttons">
       <!-- リセットボタン (定位置) -->
-      <button class="btn btn-outline-secondary rounded-circle" onclick="initGame()" style="width: 40px; height: 40px; padding: 0;" title="最初からやりなおす">
+      <button class="icon-btn btn-reset" onclick="initGame()" title="最初からやりなおす" aria-label="最初からやりなおす">
         🔄
       </button>
-      <!-- ★追加★ ランダムボタン (サイコロ) -->
-      <button class="btn btn-outline-info rounded-circle" onclick="initRandomGame()" style="width: 40px; height: 40px; padding: 0; font-size: 1.2rem;" title="ランダム配置">
+      <!-- ランダムボタン (サイコロ) -->
+      <button class="icon-btn btn-random" onclick="initRandomGame()" title="ランダム配置" aria-label="ランダム配置">
         🎲
       </button>
       <!-- ヘルプボタン -->
-      <button class="btn btn-warning text-white rounded-circle fw-bold" onclick="showRules()" style="width: 40px; height: 40px; padding: 0;">
+      <button class="icon-btn btn-help" onclick="showRules()" title="あそびかた" aria-label="あそびかた">
         ？
       </button>
     </div>
@@ -275,8 +393,8 @@
   </main>
 
   <!-- フッター -->
-  <footer class="fixed-bottom bg-white border-top text-center py-3 text-muted">
-    <small>© 2026 南極スライダー <a href="https://note.com/cute_borage86" target="_blank" class="text-decoration-none text-muted">GIGA山</a></small>
+  <footer class="fixed-footer">
+    <small>© 2026 南極スライダー <a href="https://note.com/cute_borage86" target="_blank" rel="noopener">GIGA山</a></small>
   </footer>
 
   <script>
@@ -287,6 +405,8 @@
 
     const BOARD_SIZE = 5;
     const GOAL_POS = { row: 2, col: 2 };
+    const CELL_PERCENT = 100 / BOARD_SIZE;
+    const SWIPE_THRESHOLD = 24; // px
 
     const PIECE = {
       EMPTY: 0,
@@ -303,13 +423,26 @@
     };
 
     let selectedPiece = null;
-    let touchStartX = 0;
-    let touchStartY = 0;
+    let pointerStart = null; // スワイプ開始座標 { x, y, onPiece }
+    let gameGeneration = 0;  // リセット世代。アニメーション中のリセットで古い処理を無効化する
 
     document.addEventListener('DOMContentLoaded', () => {
       initGame();
       setupControls();
     });
+
+    // PWA: Service Worker 登録
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((err) => {
+          console.warn('Service Worker registration failed:', err);
+        });
+      });
+    }
+
+    function isGoalCell(row, col) {
+      return row === GOAL_POS.row && col === GOAL_POS.col;
+    }
 
     // 通常の初期配置（定位置）
     function initGame() {
@@ -320,26 +453,26 @@
         [0,  0,  0,  0,  0],
         [21, 21, 22, 21, 21]
       ];
-      
+
       resetGameState();
     }
 
     /**
-     * ★追加★ ランダム配置でゲームを開始する関数
+     * ランダム配置でゲームを開始する関数
      */
     function initRandomGame() {
       // 1. 盤面を空で初期化
       const board = Array(BOARD_SIZE).fill(0).map(() => Array(BOARD_SIZE).fill(PIECE.EMPTY));
-      
+
       // 2. ゴール設置
       board[GOAL_POS.row][GOAL_POS.col] = PIECE.GOAL;
 
       // 3. 配置可能な座標リストを作成（ゴール以外）
-      // ゴール地点(2,2)を除外することで、王冠がいきなりゴールに置かれるのを防ぎます
-      let availablePositions = [];
+      // ゴール地点を除外することで、王冠がいきなりゴールに置かれるのを防ぎます
+      const availablePositions = [];
       for (let r = 0; r < BOARD_SIZE; r++) {
         for (let c = 0; c < BOARD_SIZE; c++) {
-          if (r === GOAL_POS.row && c === GOAL_POS.col) continue; 
+          if (isGoalCell(r, c)) continue;
           availablePositions.push({ r, c });
         }
       }
@@ -365,6 +498,8 @@
       gameState.board = board;
       resetGameState();
 
+      if (typeof Swal === 'undefined') return;
+
       // 通知トースト
       const Toast = Swal.mixin({
         toast: true,
@@ -381,6 +516,7 @@
 
     // 共通のリセット処理
     function resetGameState() {
+      gameGeneration++; // 進行中のアニメーション処理を無効化
       gameState.currentPlayer = 1;
       gameState.winner = null;
       gameState.isAnimating = false;
@@ -398,7 +534,7 @@
         for (let c = 0; c < BOARD_SIZE; c++) {
           const cell = document.createElement('div');
           cell.className = 'cell';
-          if (r === GOAL_POS.row && c === GOAL_POS.col) {
+          if (isGoalCell(r, c)) {
             cell.classList.add('goal');
             if (gameState.board[r][c] !== PIECE.GOAL && gameState.board[r][c] !== PIECE.EMPTY) {
               cell.classList.add('active');
@@ -421,7 +557,7 @@
     function createPieceElement(row, col, type) {
       const boardEl = document.getElementById('game-board');
       const piece = document.createElement('div');
-      
+
       piece.className = 'piece';
       if (type === PIECE.P1_SUB || type === PIECE.P1_MAIN) piece.classList.add('p1');
       if (type === PIECE.P2_SUB || type === PIECE.P2_MAIN) piece.classList.add('p2');
@@ -429,12 +565,11 @@
 
       setPosition(piece, row, col);
 
-      const isMyPiece = (gameState.currentPlayer === 1 && type < 20) || 
+      const isMyPiece = (gameState.currentPlayer === 1 && type < 20) ||
                         (gameState.currentPlayer === 2 && type > 20);
-      
+
       if (isMyPiece && !gameState.winner) {
-        piece.addEventListener('pointerdown', (e) => {
-          e.stopPropagation();
+        piece.addEventListener('pointerdown', () => {
           selectPiece(row, col, piece);
         });
       }
@@ -444,11 +579,11 @@
     }
 
     function setPosition(element, row, col) {
-      element.style.top = (row * 20 + 10) + '%';
-      element.style.left = (col * 20 + 10) + '%';
-      if (!element.classList.contains('move-up') && 
-          !element.classList.contains('move-down') && 
-          !element.classList.contains('move-left') && 
+      element.style.top = (row * CELL_PERCENT + CELL_PERCENT / 2) + '%';
+      element.style.left = (col * CELL_PERCENT + CELL_PERCENT / 2) + '%';
+      if (!element.classList.contains('move-up') &&
+          !element.classList.contains('move-down') &&
+          !element.classList.contains('move-left') &&
           !element.classList.contains('move-right')) {
           element.style.transform = 'translate(-50%, -50%)';
       }
@@ -456,14 +591,12 @@
 
     function updateTurnDisplay() {
       const indicator = document.getElementById('turn-indicator');
-      const p1Name = "🐧 ペンギン";
-      const p2Name = "🦭 アザラシ";
 
       if (gameState.currentPlayer === 1) {
-        indicator.innerHTML = `<ruby>${p1Name}のばん`;
+        indicator.textContent = '🐧 ペンギンのばん';
         indicator.className = 'turn-p1';
       } else {
-        indicator.innerHTML = `<ruby>${p2Name}のばん`;
+        indicator.textContent = '🦭 アザラシのばん';
         indicator.className = 'turn-p2';
       }
     }
@@ -476,38 +609,61 @@
       element.classList.add('selected');
     }
 
+    function clearSelection() {
+      document.querySelectorAll('.piece.selected').forEach(el => el.classList.remove('selected'));
+      selectedPiece = null;
+    }
+
     function setupControls() {
+      // キーボード操作 (矢印キー / WASD)
       document.addEventListener('keydown', (e) => {
         const keyMap = {
-          'ArrowUp': 'up', 'ArrowDown': 'down', 
+          'ArrowUp': 'up', 'ArrowDown': 'down',
           'ArrowLeft': 'left', 'ArrowRight': 'right',
           'w': 'up', 's': 'down', 'a': 'left', 'd': 'right'
         };
-        if (keyMap[e.key]) tryMove(keyMap[e.key]);
+        if (keyMap[e.key]) {
+          e.preventDefault(); // 矢印キーによる画面スクロールを防ぐ
+          tryMove(keyMap[e.key]);
+        }
       });
 
-      document.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
-      }, {passive: false});
+      // スワイプ操作 (Pointer Events でタッチ・マウス両対応)
+      document.addEventListener('pointerdown', (e) => {
+        pointerStart = {
+          x: e.clientX,
+          y: e.clientY,
+          onPiece: !!(e.target.closest && e.target.closest('.piece'))
+        };
+      });
 
-      document.addEventListener('touchend', (e) => {
+      document.addEventListener('pointerup', (e) => {
+        if (!pointerStart) return;
+        const start = pointerStart;
+        pointerStart = null;
+
+        const dx = e.clientX - start.x;
+        const dy = e.clientY - start.y;
+
+        // 動きが小さい場合はタップ扱い: コマ以外の場所なら選択解除
+        if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) {
+          const onPieceNow = !!(e.target.closest && e.target.closest('.piece'));
+          if (!start.onPiece && !onPieceNow) clearSelection();
+          return;
+        }
+
         if (!selectedPiece || gameState.isAnimating) return;
-        
-        const touchEndX = e.changedTouches[0].screenX;
-        const touchEndY = e.changedTouches[0].screenY;
-        
-        const dx = touchEndX - touchStartX;
-        const dy = touchEndY - touchStartY;
-        
-        if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return; 
 
         if (Math.abs(dx) > Math.abs(dy)) {
           tryMove(dx > 0 ? 'right' : 'left');
         } else {
           tryMove(dy > 0 ? 'down' : 'up');
         }
-      }, {passive: false});
+      });
+
+      document.addEventListener('pointercancel', () => {
+        pointerStart = null;
+      });
     }
 
     function tryMove(direction) {
@@ -516,29 +672,32 @@
       const { row, col } = selectedPiece;
       const pieceType = gameState.board[row][col];
       const pieceEl = document.getElementById(`piece-${row}-${col}`);
+      if (!pieceEl) return;
 
       const target = calculateSlideTarget(row, col, direction);
 
       if (target.row === row && target.col === col) return;
 
+      const generation = gameGeneration;
       gameState.isAnimating = true;
-      gameState.board[row][col] = (row === 2 && col === 2) ? PIECE.GOAL : PIECE.EMPTY;
-      
+      gameState.board[row][col] = isGoalCell(row, col) ? PIECE.GOAL : PIECE.EMPTY;
+
       const moveClass = `move-${direction}`;
       pieceEl.classList.add(moveClass);
       pieceEl.classList.remove('selected');
 
       pieceEl.id = `piece-${target.row}-${target.col}`;
-      pieceEl.style.top = (target.row * 20 + 10) + '%';
-      pieceEl.style.left = (target.col * 20 + 10) + '%';
+      setPosition(pieceEl, target.row, target.col);
 
       setTimeout(() => {
+        if (generation !== gameGeneration) return; // アニメーション中にリセットされた
         pieceEl.classList.remove(moveClass);
         pieceEl.classList.add('impact');
 
         setTimeout(() => {
+          if (generation !== gameGeneration) return;
           pieceEl.classList.remove('impact');
-          
+
           gameState.board[target.row][target.col] = pieceType;
           selectedPiece = null;
           gameState.isAnimating = false;
@@ -551,7 +710,7 @@
             renderBoard();
           }
         }, 300);
-        
+
       }, 400);
     }
 
@@ -575,9 +734,8 @@
 
     function checkWin(pieceType, row, col) {
       const isKing = (pieceType === PIECE.P1_MAIN || pieceType === PIECE.P2_MAIN);
-      const isGoal = (row === GOAL_POS.row && col === GOAL_POS.col);
-      if (isKing && isGoal) {
-        gameState.winner = gameState.currentPlayer;
+      if (isKing && isGoalCell(row, col)) {
+        gameState.winner = (pieceType === PIECE.P1_MAIN) ? 1 : 2;
         showWinModal();
       }
     }
@@ -585,7 +743,13 @@
     function showWinModal() {
       const winnerName = gameState.winner === 1 ? "ペンギンチーム 🐧" : "アザラシチーム 🦭";
       const color = gameState.winner === 1 ? '#00C2CB' : '#FF8BA7';
-      
+
+      if (typeof Swal === 'undefined') {
+        alert(`🎉 おめでとう！ ${winnerName}のかち！`);
+        initGame();
+        return;
+      }
+
       Swal.fire({
         title: '🎉 おめでとう！ 🎉',
         html: `<h2 style="color:${color}">${winnerName}のかち！</h2>`,
@@ -598,6 +762,10 @@
     }
 
     function showRules() {
+      if (typeof Swal === 'undefined') {
+        alert('🧊 あそびかた\n1. コマをえらぶ (タップ)\n2. スワイプか矢印キーですべる\n3. 王冠👑をゴール🍧へ！');
+        return;
+      }
       Swal.fire({
         title: '🧊 あそびかた',
         width: 600,
@@ -610,7 +778,7 @@
             <div class="rule-step">
               <div class="rule-title"><span class="rule-badge">2</span> スワイプですべる</div>
               <div class="rule-visual">💨 <ruby>氷<rt>こおり</rt></ruby>の<ruby>上<rt>うえ</rt></ruby>をスイスイ！</div>
-              <p class="text-center mt-2 small"><ruby>指<rt>ゆび</rt></ruby>で<ruby>画面<rt>がめん</rt></ruby>をなぞるか、<ruby>矢印<rt>やしるし</rt></ruby>キーをおしてね</p>
+              <p class="rule-note"><ruby>指<rt>ゆび</rt></ruby>やマウスで<ruby>画面<rt>がめん</rt></ruby>をなぞるか、<ruby>矢印<rt>やじるし</rt></ruby>キーをおしてね</p>
             </div>
             <div class="rule-step" style="border-color:var(--accent-color)">
               <div class="rule-title"><span class="rule-badge">3</span> <ruby>王冠<rt>おうかん</rt></ruby>をゴールへ</div>
