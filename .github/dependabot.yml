@@ -1,0 +1,25 @@
+version: 2
+
+updates:
+  # npm パッケージ。学校での利用中に壊れると復旧が難しいため、
+  # 更新の通知は月1回にまとめ、メジャー更新は自動では上げない。
+  # アイコンを作り直すための sharp だけ。配信物には含まれない。
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    ignore:
+      # メジャー更新は破壊的変更を含むため、人間が判断してから上げる
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions 自体の更新（ワークフローが使う action のバージョン）
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
