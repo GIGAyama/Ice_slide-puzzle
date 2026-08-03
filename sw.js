@@ -3,9 +3,18 @@
  * - アプリシェルは事前キャッシュ（オフラインでも起動可能）
  * - CDNリソース（フォント・SweetAlert2）は stale-while-revalidate
  */
-const CACHE_VERSION = 'v1';
-const PRECACHE = `nankyoku-precache-${CACHE_VERSION}`;
-const RUNTIME = `nankyoku-runtime-${CACHE_VERSION}`;
+/*
+ * 【最重要】activate では自アプリ以外のキャッシュを削除しない。
+ *   gigayama.github.io は数十個のアプリが同一オリジンを共有しているため、
+ *   CACHE_PREFIX で始まるキャッシュだけを掃除する。
+ *   以前はここで caches.keys() の結果を全部消していた。そのため
+ *   このアプリを開くたびに、同じ端末に入っている他の GIGA アプリの
+ *   キャッシュまで巻き添えで消え、それらがオフラインで起動しなくなっていた。
+ */
+const CACHE_PREFIX = 'nankyoku-';
+const CACHE_VERSION = 'v2';   // ← リリースごとに必ず上げる
+const PRECACHE = `${CACHE_PREFIX}precache-${CACHE_VERSION}`;
+const RUNTIME = `${CACHE_PREFIX}runtime-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
   './',
@@ -33,7 +42,9 @@ self.addEventListener('activate', (event) => {
     caches.keys()
       .then((keys) => Promise.all(
         keys
-          .filter((key) => key !== PRECACHE && key !== RUNTIME)
+          // ← 自アプリ接頭辞のものだけを削除する。ここを外すと
+          //    同一オリジンの他アプリを巻き添えにする。
+          .filter((key) => key.startsWith(CACHE_PREFIX) && key !== PRECACHE && key !== RUNTIME)
           .map((key) => caches.delete(key))
       ))
       .then(() => self.clients.claim())
