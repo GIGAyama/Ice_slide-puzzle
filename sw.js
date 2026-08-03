@@ -20,6 +20,7 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.webmanifest',
+  './offline.html',
   './favicon.png',
   './vendor/sweetalert2.all.min.js',
   './icons/icon-192.png',
@@ -30,11 +31,18 @@ const PRECACHE_URLS = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(PRECACHE)
-      .then((cache) => cache.addAll(PRECACHE_URLS))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(PRECACHE);
+    // addAll は1本でも取れないと全部落ちる。校内 Wi-Fi が混んでいるときに
+    // 「1つ取りこぼしたせいでオフライン対応が丸ごと入らない」のを避けるため、
+    // 個別に入れて、取れなかったものだけ飛ばす。
+    await Promise.all(PRECACHE_URLS.map((u) =>
+      cache.add(new Request(u, { cache: 'reload' }))
+        .catch((err) => console.warn('[sw] precache skipped', u, err))));
+    // ここでは skipWaiting しない。
+    // 対戦の途中で画面が突然入れ替わると、そこまでの盤面が消える。
+    // 画面側で「さいしんに する」を押してもらってから切り替える（下の message）。
+  })());
 });
 
 self.addEventListener('activate', (event) => {
@@ -64,7 +72,11 @@ self.addEventListener('fetch', (event) => {
           caches.open(PRECACHE).then((cache) => cache.put('./index.html', copy));
           return response;
         })
-        .catch(() => caches.match('./index.html'))
+        // キャッシュにも無ければ offline.html を返す。ここで何も返さないと
+        // 児童には「アプリが壊れた」ようにしか見えない。
+        .catch(async () => (await caches.match('./index.html'))
+          || (await caches.match('./offline.html'))
+          || Response.error())
     );
     return;
   }
@@ -103,4 +115,9 @@ self.addEventListener('fetch', (event) => {
       return cached || fetched;
     })
   );
+});
+
+// 画面側で「さいしんに する」が押されたときだけ切り替える
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });

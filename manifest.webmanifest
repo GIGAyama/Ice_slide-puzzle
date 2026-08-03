@@ -3,13 +3,30 @@
   "short_name": "南極スライダー",
   "description": "氷の上をツルツル滑るコマを操って王冠をゴールへ導く、2人対戦型ボードゲーム",
   "lang": "ja",
-  "id": "./",
-  "start_url": "./",
-  "scope": "./",
+  "dir": "ltr",
+  "id": "/Ice_slide-puzzle/",
+  "start_url": "/Ice_slide-puzzle/",
+  "scope": "/Ice_slide-puzzle/",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "fullscreen",
+    "minimal-ui"
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  },
   "orientation": "any",
   "background_color": "#fff9c4",
   "theme_color": "#ffffff",
+  "categories": [
+    "games",
+    "education",
+    "kids"
+  ],
   "icons": [
     {
       "src": "icons/icon-192.png",

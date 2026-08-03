@@ -1,0 +1,13 @@
+{
+  "name": "ice_slide-puzzle",
+  "private": true,
+  "version": "1.0.0",
+  "description": "南極スライダー。ビルドは不要で、index.html をそのまま配信している。ここにあるのはアイコンを作り直すための道具だけ。",
+  "type": "module",
+  "scripts": {
+    "icons": "node tools/optimize-icons.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
+  }
+}

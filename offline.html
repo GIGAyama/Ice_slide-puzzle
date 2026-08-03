@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#1967d2" />
+    <title>南極スライダー👑｜いまはインターネットにつながっていません</title>
+    <!--
+      ここは「ネットにつながらないうえに、アプリ本体もまだ手元に無い」ときだけ出る画面。
+      外部の資産に頼ると、その状況では確実に読めない。だから文字と色だけで作る。
+    -->
+    <style>
+      :root { color-scheme: light; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: calc(24px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right))
+                 calc(24px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left));
+        background: #e3f2fd;
+        color: #1e293b;
+        font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+        line-height: 1.8;
+      }
+      main {
+        max-width: 30rem;
+        text-align: center;
+        background: #fff;
+        border: 4px solid #1967d2;
+        border-radius: 24px;
+        padding: clamp(1.5rem, 5vw, 2.5rem);
+      }
+      h1 { font-size: clamp(1.25rem, 5vw, 1.75rem); margin: 0 0 0.75rem; color: #0d47a1; }
+      p { font-size: clamp(0.95rem, 3.5vw, 1.05rem); margin: 0 0 1.25rem; }
+      ul { text-align: left; margin: 0 0 1.5rem; padding-left: 1.25rem; }
+      li { margin-bottom: 0.4rem; }
+      /* JavaScript は使わない。この画面は「アプリが動かせない状況」で出るものなので、
+         リンクを押して開き直すだけにしてある。 */
+      .retry {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        min-height: 44px;
+        padding: 0.75rem 2rem;
+        border-radius: 9999px;
+        background: #1967d2;
+        color: #fff;
+        text-decoration: none;
+        touch-action: manipulation;
+      }
+      .retry:hover { background: #1558b0; }
+      .retry:focus-visible { outline: 3px solid #1e293b; outline-offset: 3px; }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; }
+      }
+      @media (forced-colors: active) {
+        main { border-color: CanvasText; }
+        .retry { border: 2px solid ButtonText; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>いまは つながっていません</h1>
+      <p>インターネットに つながっていないため、南極スライダーを ひらけませんでした。</p>
+      <ul>
+        <li>Wi-Fi が つながっているか たしかめてください</li>
+        <li>つながったら 下の ボタンを おしてください</li>
+        <li>いちど ひらいたことがある 端末なら、しばらく まってから もう一度 ためすと ひらけることがあります</li>
+      </ul>
+      <a class="retry" href="/Ice_slide-puzzle/">もう一度 ひらく</a>
+    </main>
+  </body>
+</html>
