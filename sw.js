@@ -12,7 +12,7 @@
  *   キャッシュまで巻き添えで消え、それらがオフラインで起動しなくなっていた。
  */
 const CACHE_PREFIX = 'nankyoku-';
-const CACHE_VERSION = 'v2';   // ← リリースごとに必ず上げる
+const CACHE_VERSION = 'v3';   // ← リリースごとに必ず上げる
 const PRECACHE = `${CACHE_PREFIX}precache-${CACHE_VERSION}`;
 const RUNTIME = `${CACHE_PREFIX}runtime-${CACHE_VERSION}`;
 

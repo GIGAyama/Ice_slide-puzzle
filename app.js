@@ -415,7 +415,10 @@
 
     function showWinModal() {
       const winnerName = gameState.winner === 1 ? "ペンギンチーム 🐧" : "アザラシチーム 🦭";
-      const color = gameState.winner === 1 ? '#00C2CB' : '#FF8BA7';
+      // コマの色（#00C2CB / #FF8BA7）をそのまま文字に使うと、白地で比 2.19 / 2.21 になる（実測）。
+      // ターン表示で先に踏んだのと同じ問題で、勝敗の表示だけ直し忘れていた。
+      // コマの色は変えず、同じ色相の濃い版（--p1-text / --p2-text）を文字に使う。
+      const color = gameState.winner === 1 ? '#007a80' : '#b03a5b';
 
       if (typeof Swal === 'undefined') {
         alert(`🎉 おめでとう！ ${winnerName}のかち！`);
