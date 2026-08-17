@@ -4,9 +4,9 @@
   "description": "氷の上をツルツル滑るコマを操って王冠をゴールへ導く、2人対戦型ボードゲーム",
   "lang": "ja",
   "dir": "ltr",
-  "id": "/Ice_slide-puzzle/",
-  "start_url": "/Ice_slide-puzzle/",
-  "scope": "/Ice_slide-puzzle/",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "display_override": [
     "standalone",
