@@ -10,7 +10,7 @@
 
 だから、説明が10秒で済むものを作りました。氷の上をすべる2人対戦ゲーム「南極スライダー」です。
 
-https://gigayama.github.io/Ice_slide-puzzle/
+https://ice-slide-puzzle.giga-school.com/
 
 覚えることは3つしかありません。コマをえらぶ。すべらせる。王冠のついたコマを、まん中のかき氷にぴったり止める。これだけです。ブラウザを開けばすぐ始まりますし、名前を入れる画面も、ログインの画面もありません。
 
@@ -128,11 +128,11 @@ https://gigayama.github.io/Ice_slide-puzzle/
 
 インストールは要りません。次のアドレスを開くだけです。
 
-https://gigayama.github.io/Ice_slide-puzzle/
+https://ice-slide-puzzle.giga-school.com/
 
 校内のフィルタリングで許可が必要になるかもしれないアドレスは3つあります。
 
-まず gigayama.github.io です。ゲーム本体が置いてあるところで、ここが通っていないと開けません。残りの2つは fonts.googleapis.com と fonts.gstatic.com で、どちらも文字の形を読みこむためのものです。
+まず ice-slide-puzzle.giga-school.com です。ゲーム本体が置いてあるところで、ここが通っていないと開けません。残りの2つは fonts.googleapis.com と fonts.gstatic.com で、どちらも文字の形を読みこむためのものです。
 
 あとの2つは、通してもらえなくてもかまいません。読みこめなかったときは端末にもともと入っている書体に切りかえるようにしてあるので、見た目が少し変わるだけで、遊ぶのに支障はありません。実際、私がこのゲームを作って確かめた環境ではこの2つが塞がれており、その状態のまま全部の画面を確認しています。
 
@@ -180,7 +180,7 @@ https://gigayama.github.io/Ice_slide-puzzle/
 
 子どもたちに伝えるときの手順です。そのまま画面に映して読ませることもできます。
 
-1. ブラウザで https://gigayama.github.io/Ice_slide-puzzle/ を開きます
+1. ブラウザで https://ice-slide-puzzle.giga-school.com/ を開きます
 2. 右上の「？」ボタンを押して、あそびかたを読みます。読み終わったら「わかった！」を押します
 3. 2人で1台の端末を囲みます。上のペンギンチームと、下のアザラシチームに分かれます
 4. 自分のばんになったら、動かしたいコマを指でタップします。えらんだコマは大きくなって光ります
