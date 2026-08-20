@@ -65,12 +65,12 @@
 | コマは5つずつ、王冠は各1つ | `app.js` の `initGame()` の初期配置 |
 | 覚えることは3つ | `app.js` の `showRules()` のカード3枚 |
 | 両チーム合わせて7手で決まった | 撮影シナリオで実際に指した手数（1手目から7手目） |
-| 許可が要るかもしれないアドレスは3つ | `index.html` と `app.js` から外へ出る先を全部数えた。`gigayama.github.io` と Google Fonts の2つだけ |
+| 許可が要るかもしれないアドレスは3つ | `index.html` と `app.js` から外へ出る先を全部数えた。`ice-slide-puzzle.giga-school.com` と Google Fonts の2つだけ |
 | 画像は全部で44キロバイト、以前は1.3メガバイト、96パーセント減 | [`AUDIT.md`](../../AUDIT.md) §2 の実測 |
 | 記録が端末にもインターネットの向こうにも残らない | `localStorage` `sessionStorage` `indexedDB` `fetch` のいずれも使っていないことを確認。通信先は `index.html` の CSP `connect-src 'self'` で自分自身に限定 |
 | 拡大を禁止していない | [`AUDIT.md`](../../AUDIT.md) §3 |
 | 濃さと押せる範囲を測って直した | [`AUDIT.md`](../../AUDIT.md) §6 と §7 |
-| 公開先の URL | `manifest.webmanifest` の `start_url` が `/Ice_slide-puzzle/`。GitHub Pages の配信元と合わせて `https://gigayama.github.io/Ice_slide-puzzle/` |
+| 公開先の URL | `manifest.webmanifest` の `start_url` が `./`（＝配信場所そのもの）。`CNAME` が指す `https://ice-slide-puzzle.giga-school.com/` |
 
 一局にかかる時間は、はっきり測れていません。撮影は自動で操作しているので、
 実際に人が遊んだ時間の目安にはならないためです。記事では手数だけを書き、
