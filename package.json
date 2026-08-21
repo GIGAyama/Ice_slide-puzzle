@@ -7,7 +7,7 @@
   "scripts": {
     "icons": "node tools/optimize-icons.mjs",
     "build:sw": "node tools/build-sw.mjs",
-    "check": "node tools/build-sw.mjs --check"
+    "check": "node scripts/check-standard.mjs && node tools/build-sw.mjs --check"
   },
   "devDependencies": {
     "sharp": "^0.35.3"

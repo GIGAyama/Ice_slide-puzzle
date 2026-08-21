@@ -1,0 +1,24 @@
+{
+  "standard": {
+    "repoName": "Ice_slide-puzzle",
+    "sw": "static",
+    "jsDirs": [
+      "."
+    ],
+    "swVersionConst": "CACHE_VERSION",
+    "allowedRemoteScripts": [
+      "^https://fonts\\.googleapis\\.com(/|$)",
+      "^https://fonts\\.gstatic\\.com(/|$)"
+    ],
+    "skips": [
+      {
+        "id": "A_DOCS",
+        "reason": "操作説明は README に含む（AUDIT.md はある）。小規模のため MANUAL の分離はしていない"
+      },
+      {
+        "id": "C_PAGEHIDE",
+        "reason": "保存する状態が無い（localStorage 未使用の対戦ボードゲーム）"
+      }
+    ]
+  }
+}
