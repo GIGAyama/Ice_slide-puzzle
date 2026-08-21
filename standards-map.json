@@ -1,0 +1,5 @@
+{
+  "files": [
+    { "canonical": "sw/build-sw-static.mjs", "local": "tools/build-sw.mjs" }
+  ]
+}

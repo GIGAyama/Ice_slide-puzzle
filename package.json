@@ -5,7 +5,9 @@
   "description": "南極スライダー。ビルドは不要で、index.html をそのまま配信している。ここにあるのはアイコンを作り直すための道具だけ。",
   "type": "module",
   "scripts": {
-    "icons": "node tools/optimize-icons.mjs"
+    "icons": "node tools/optimize-icons.mjs",
+    "build:sw": "node tools/build-sw.mjs",
+    "check": "node tools/build-sw.mjs --check"
   },
   "devDependencies": {
     "sharp": "^0.35.3"
