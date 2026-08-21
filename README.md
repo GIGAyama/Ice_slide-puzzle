@@ -62,7 +62,7 @@
 
 **GIGA山**
 
-*   [note: @cute_borage86](https://note.com/cute_borage86 "null")
+*   [GIGA山のホームページ](https://giga-school.com "null")
     
 
 ## 📄 ライセンス
