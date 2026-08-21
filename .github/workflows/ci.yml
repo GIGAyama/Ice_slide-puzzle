@@ -1,0 +1,31 @@
+name: CI
+
+# push だけだと PR の時点で落ちていることに気づけないので、両方で動かす。
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # 版の自動生成がずれていないか（手で上げる運用は 2026-08-21 の上げ忘れ事故のもと）
+      - name: SW の版が中身と一致しているか
+        run: node tools/build-sw.mjs --check
+
+  # 正本（GIGAyama.github.io/standards/）との一致。コピーだけ直すと他リポジトリに修正が届かないため。
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: GIGAyama/GIGAyama.github.io
+          path: .standards-src
+      - name: 正本とのずれ検知
+        run: node .standards-src/standards/check-drift.mjs --standards .standards-src/standards
