@@ -106,16 +106,31 @@ const listFiles = (root, dir, ext) => {
 const jsFiles = (root, cfg) => cfg.jsDirs.flatMap((d) => listFiles(root, d, '.js'));
 const cssFiles = (root, cfg) => cfg.cssDirs.flatMap((d) => listFiles(root, d, '.css'));
 // CSS の中身の一覧。単一 HTML 型のアプリはスタイルを <style> に書くので、
-// .css ファイルに加えて htmlFiles の <style> ブロックも数える
-const cssSources = (root, cfg) => [
+// .css ファイルに加えて htmlFiles の <style> ブロックも数える。
+// @param {boolean} [withOffline=true] offline.html の <style> も含めるか
+const cssSources = (root, cfg, withOffline = true) => [
   ...cssFiles(root, cfg).map((rel) => ({ rel, css: read(root, rel) || '' })),
-  ...cfg.htmlFiles.flatMap((rel) => {
-    const s = read(root, rel);
-    if (!s) return [];
-    const blocks = [...s.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]);
-    return blocks.length ? [{ rel: `${rel} の <style>`, css: blocks.join('\n') }] : [];
-  }),
+  ...cfg.htmlFiles
+    .filter((rel) => withOffline || path.basename(rel) !== 'offline.html')
+    .flatMap((rel) => {
+      const s = read(root, rel);
+      if (!s) return [];
+      const blocks = [...s.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]);
+      return blocks.length ? [{ rel: `${rel} の <style>`, css: blocks.join('\n') }] : [];
+    }),
 ];
+
+/**
+ * 「アプリの画面が◯◯に対応しているか」を見る検査のための CSS。
+ *
+ * offline.html を外す。あれは圏外のときだけ出る、外部資産にも JavaScript にも
+ * たよらない小さな一枚で、その中の <style> はアプリ本体のスタイルではない。
+ * 混ぜていたせいで、本体 CSS から env(safe-area-inset) や clamp() や
+ * forced-colors を全部消しても検査が緑のままになっていた。
+ * 実際 typa の self-test は D_SAFE_AREA / D_FLUID_TYPE / D_FORCED_COLORS を
+ * 「こわしたのに 通りました」と報告し続けていた。
+ */
+const appCssSources = (root, cfg) => cssSources(root, cfg, false);
 const swSourceOf = (cfg) => cfg.swSource || (cfg.sw === 'vite' ? 'public/sw.js' : 'sw.js');
 
 /**
@@ -340,7 +355,7 @@ export const CHECKS = [
     id: 'D_SAFE_AREA',
     title: 'safe-area-inset をつかっている',
     run: (root, cfg) => {
-      const n = cssSources(root, cfg)
+      const n = appCssSources(root, cfg)
         .reduce((a, { css }) => a + (css.match(/env\(\s*safe-area-inset/g) || []).length, 0);
       return { ok: n > 0, detail: ['ノッチ・ホームバーのぶんを足していません'] };
     },
@@ -349,7 +364,7 @@ export const CHECKS = [
     id: 'D_FLUID_TYPE',
     title: 'clamp() で文字の大きさを決めている',
     run: (root, cfg) => {
-      const n = cssSources(root, cfg)
+      const n = appCssSources(root, cfg)
         .reduce((a, { css }) => a + (css.match(/clamp\(/g) || []).length, 0);
       return { ok: n >= cfg.fluidTypeMin, detail: [`clamp() が ${n} か所しかありません（目安 ${cfg.fluidTypeMin}）`] };
     },
@@ -368,7 +383,7 @@ export const CHECKS = [
     id: 'D_REDUCED_MOTION',
     title: 'prefers-reduced-motion に対応し、0 ではなく .01ms 以下の実数',
     run: (root, cfg) => {
-      const css = cssSources(root, cfg).map((x) => x.css).join('\n');
+      const css = appCssSources(root, cfg).map((x) => x.css).join('\n');
       if (!/prefers-reduced-motion/.test(css)) return { ok: false, detail: ['対応していません'] };
       const bad = [];
       // 0 にすると animation-fill-mode: forwards が効かず、中身が消える
@@ -381,7 +396,7 @@ export const CHECKS = [
     id: 'D_FORCED_COLORS',
     title: 'forced-colors（ハイコントラスト）に対応している',
     run: (root, cfg) => {
-      const css = cssSources(root, cfg).map((x) => x.css).join('\n');
+      const css = appCssSources(root, cfg).map((x) => x.css).join('\n');
       return { ok: /forced-colors\s*:\s*active/.test(css), detail: ['地の色が無効にされると、押せることが分からなくなります'] };
     },
   },
@@ -685,10 +700,26 @@ export const CHECKS = [
       if (!files.length) return { ok: false, detail: ['serviceWorker.register がありません'] };
       const bad = files.filter((rel) => {
         const code = stripComments(read(root, rel));
-        if (!/addEventListener\(\s*['"]load['"]/.test(code)) return false;   // load を待っていないなら問題なし
+        const loads = [...code.matchAll(/addEventListener\(\s*['"]load['"]/g)].map((m) => m.index);
+        if (!loads.length) return false;                                    // load を待っていないなら問題なし
+        // ⚠️ ファイル全体から readyState をさがしてはいけない。
+        //    大きな app.js には SW と関係のない
+        //      if (document.readyState === 'loading') …DOMContentLoaded…
+        //    がたいてい別の場所にあり、それが身代わりになって、登録の手前の
+        //    ガードを消しても検査が通ってしまう。実際 typa の self-test は
+        //    この検査を「こわしたのに 通りました」と報告し続けていた。
+        //    実装を見ると、ガードは load を待つ行の 50〜56 文字前に置かれる:
+        //      if (document.readyState === 'complete') start();
+        //      else window.addEventListener('load', start);
+        //    なので、load を待つ行のすぐ手前だけを見る。
         // 'complete' との比較でも 'loading' との比較（DOMContentLoaded 方式）でもよい。
-        // どちらも「もうイベントが済んでいる場合」を見ている
-        return !/readyState\s*[!=]==?\s*['"](?:complete|loading)['"]/.test(code);
+        // どちらも「もうイベントが済んでいる場合」を見ている。
+        const WINDOW = 200;
+        const guarded = loads.some((at) =>
+          /readyState\s*[!=]==?\s*['"](?:complete|loading)['"]/.test(code.slice(Math.max(0, at - WINDOW), at)));
+        // 「どれか1つでもガードされていれば良し」としている。ファイルの中の
+        // どの load 待ちが登録につながるかは、文字だけでは決められないため。
+        return !guarded;
       });
       return { ok: bad.length === 0, detail: bad.map((f) => `${f}: load がもう済んでいる場合を見ていません（黙って登録されません）`) };
     },
