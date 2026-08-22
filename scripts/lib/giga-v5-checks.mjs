@@ -38,6 +38,7 @@
  *     "swSource": "sw.js",             // 検査する SW の原文（vite なら public/sw.js）
  *     "swVersionConst": "APP_VERSION", // 版の定数名（VERSION 等の別名を許す）
  *     "manifest": "manifest.webmanifest",
+ *     "siteRoot": ".",                 // 配信の起点。Vite 型は "public"
  *     "jsDirs": ["js"], "cssDirs": ["css"],
  *     "htmlFiles": ["index.html", "offline.html"],
  *     "imageDirs": ["icons", "img", "images"],
@@ -85,6 +86,12 @@ const DEFAULTS = {
   swSource: null,               // 未指定なら sw に応じて既定を選ぶ
   swVersionConst: null,         // 未指定なら APP_VERSION / VERSION の両方を受ける
   manifest: 'manifest.webmanifest',
+  // 配信の起点。静的にコミットするアプリは直下がそのまま配られるので '.'。
+  // Vite 型は public/ の中身が配信の直下に来るので "public" を指定する。
+  // manifest やアイコンの src は「配信されたときのパス」で書いてあるため、
+  // ここを見ないとファイルの実体を取りちがえる（実際 digitalcloset で
+  // offline.html とアイコン3件が「ありません」と誤検知した）。
+  siteRoot: '.',
   jsDirs: ['js'],
   cssDirs: ['css'],
   htmlFiles: ['index.html', 'offline.html'],
@@ -98,12 +105,71 @@ const read = (root, rel) => {
   const p = path.join(root, rel);
   return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null;
 };
-const listFiles = (root, dir, ext) => {
-  const p = path.join(root, dir);
-  if (!fs.existsSync(p)) return [];
-  return fs.readdirSync(p).filter((f) => f.endsWith(ext)).map((f) => path.join(dir, f));
+/**
+ * 配信されるファイルの実体の場所。
+ *
+ * manifest やアイコンの src、offline.html は「配信されたときのパス」で
+ * 書いてある。静的にコミットするアプリは直下がそのまま配られるので
+ * これは実体の場所と一致するが、Vite 型では public/ の中身が配信の直下に
+ * 来るので一致しない。cfg.siteRoot を挟まないと「ファイルがありません」と
+ * 誤検知する。
+ */
+const sitePath = (root, cfg, rel) => path.join(root, cfg.siteRoot, rel.replace(/^\.?\//, ''));
+const siteRead = (root, cfg, rel) => {
+  const p = sitePath(root, cfg, rel);
+  return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null;
 };
-const jsFiles = (root, cfg) => cfg.jsDirs.flatMap((d) => listFiles(root, d, '.js'));
+/**
+ * 走査から外す置き場。ここは「このアプリの画面をつくっているコード」ではない。
+ *
+ * ⚠️ 外さないと何が起きるか（2026-08-22 に実際に起きた）:
+ *    ice_slide-puzzle は jsDirs が ["."]。下の階層まで見るようにした
+ *    とたん、**ゲート自身**（scripts/lib/giga-v5-checks.mjs）と
+ *    同梱の vendor/sweetalert2.all.min.js を読みはじめ、
+ *    検査の説明に出てくる <img> や localStorage.clear() を
+ *    アプリのコードとして 4件の違反に数えた。
+ */
+const SKIP_DIRS = new Set([
+  'node_modules', 'dist', 'build', 'out', 'coverage', '.git',
+  'vendor',            // 同梱した他人のコード。直せないものを数えても意味がない
+  'scripts', 'tools',  // ゲートと道具。アプリの画面をつくっていない
+  'tests', 'test', '__tests__',
+  '.standards-src',
+]);
+
+/**
+ * dir の下からその拡張子のファイルを集める。**下の階層まで見る。**
+ *
+ * かつては直下しか見ていなかった。reversi の src/lib/ のように1段でも
+ * 深いと丸ごと見のがし、そこに何を書いても検査が反応しなかった。
+ */
+const listFiles = (root, dir, exts, skip = SKIP_DIRS) => {
+  const want = Array.isArray(exts) ? exts : [exts];
+  const base = path.join(root, dir);
+  if (!fs.existsSync(base)) return [];
+  const out = [];
+  const walk = (rel) => {
+    for (const name of fs.readdirSync(path.join(root, rel)).sort()) {
+      if (skip.has(name)) continue;
+      const next = path.join(rel, name);
+      if (fs.statSync(path.join(root, next)).isDirectory()) { walk(next); continue; }
+      if (want.some((e) => name.endsWith(e))) out.push(next);
+    }
+  };
+  walk(dir);
+  return out;
+};
+
+/**
+ * JavaScript として読むもの。
+ *
+ * ⚠️ '.js' だけを見ていた時期がある。React で書いたアプリの本体は .jsx
+ *    なので、B_NO_SECRETS も C_PAGEHIDE も **ほぼ何も見ないまま緑**を
+ *    返していた（2026-08-22、digitalcloset の src/App.jsx にある
+ *    pagehide を取りこぼして発覚）。
+ */
+const JS_EXTS = ['.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx'];
+const jsFiles = (root, cfg) => cfg.jsDirs.flatMap((d) => listFiles(root, d, JS_EXTS));
 const cssFiles = (root, cfg) => cfg.cssDirs.flatMap((d) => listFiles(root, d, '.css'));
 // CSS の中身の一覧。単一 HTML 型のアプリはスタイルを <style> に書くので、
 // .css ファイルに加えて htmlFiles の <style> ブロックも数える。
@@ -572,7 +638,7 @@ export const CHECKS = [
       if (!m) bad.push('apple-touch-icon がありません');
       else {
         const rel = m[1].replace(/^\.\//, '');
-        const p = path.join(root, rel);
+        const p = sitePath(root, cfg, rel);
         if (!fs.existsSync(p)) bad.push(`apple-touch-icon のファイルがありません: ${rel}`);
         else if (pngHasAlpha(p)) bad.push(`${rel} に透明があります（iOS で四すみが黒くなります）`);
       }
@@ -759,7 +825,7 @@ export const CHECKS = [
     title: 'offline.html があり、外部資産にも JavaScript にもたよっていない',
     run: (root, cfg) => {
       if (cfg.sw === 'none') return { ok: true, detail: [], skip: 'Service Worker をつかっていません' };
-      const s = read(root, 'offline.html');
+      const s = siteRead(root, cfg, 'offline.html');
       if (!s) return { ok: false, detail: ['offline.html がありません'] };
       const bad = [];
       const html = s.replace(/<!--[\s\S]*?-->/g, '');
@@ -787,7 +853,32 @@ export const CHECKS = [
       //    先読みの配列（[ … ] の中）に入っていることを見る。
       const inArray = [...code.matchAll(/\[[\s\S]{0,4000}?\]/g)]
         .some((m) => /offline\.html/.test(m[0]));
-      return { ok: inArray, detail: ['offline.html を先読みの一覧に入れていません。圏外では出せません'] };
+      if (inArray) return { ok: true, detail: [] };
+
+      // ⚠️ ビルドで一覧を注入する型では、原文の配列を見ても真偽が決まらない。
+      //    tools/build-sw.mjs が /* __PRECACHE_URLS__ */ の行を実ファイル名で
+      //    書き替えるので、原文はただの置き場である。そこに種の一覧を書いて
+      //    あるリポジトリ（digitalcloset）は偶然通り、空の [] にしてある
+      //    リポジトリ（quoridor）は正しく先読みしているのに落ちていた。
+      //    真偽が決まるのは sw-build.config.json の precache のほうなので、
+      //    置き場だと分かるときはそちらを見る。
+      const isPlaceholder = /__PRECACHE_URLS__/.test(src);
+      if (isPlaceholder) {
+        const cfgSrc = read(root, 'sw-build.config.json');
+        if (!cfgSrc) {
+          return { ok: false, detail: ['先読み一覧はビルドで注入する形ですが、sw-build.config.json がありません'] };
+        }
+        let precache;
+        try { precache = JSON.parse(cfgSrc).precache; } catch { precache = null; }
+        if (!Array.isArray(precache)) {
+          return { ok: false, detail: ['sw-build.config.json に precache の一覧がありません'] };
+        }
+        return {
+          ok: precache.some((e) => /offline\.html/.test(e)),
+          detail: ['sw-build.config.json の precache に offline.html を入れていません。圏外では出せません'],
+        };
+      }
+      return { ok: false, detail: ['offline.html を先読みの一覧に入れていません。圏外では出せません'] };
     },
   },
   {
@@ -799,7 +890,7 @@ export const CHECKS = [
       const j = JSON.parse(s);
       const bad = [];
       for (const ic of (j.icons || []).filter((i) => (i.purpose || '').includes('maskable'))) {
-        const p = path.join(root, ic.src.replace(/^\.\//, ''));
+        const p = sitePath(root, cfg, ic.src);
         if (!fs.existsSync(p)) { bad.push(`${ic.src} がありません`); continue; }
         if (pngHasAlpha(p)) bad.push(`${ic.src} に透明があります。maskable の下地ははしまでのばしてください（縮んで見えます）`);
       }
@@ -904,7 +995,8 @@ function rgbaHasTransparency(buf) {
     i += 12 + len;
   }
   let raw;
-  try { raw = zlib.inflateSync(idat); } catch (e) { return true; }
+  // 読めないときは安全側（透明あり）に倒す。例外の中身は使わないので受けない
+  try { raw = zlib.inflateSync(idat); } catch { return true; }
   const stride = w * ch;
   const out = Buffer.alloc(h * stride);
   let pos = 0;
