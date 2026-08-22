@@ -480,6 +480,34 @@
       cursor: pointer;
       touch-action: manipulation;
     }
+  
+    /* ------------------------------------------------------------------
+     *  つかいやすさの したく（2026-08-22 に ついか）
+     *
+     *  ここが なかったのに 検査は 緑だった。offline.html の <style> に
+     *  同じ 指定が あり、検査が それを 本体の スタイルと 数えて いたため。
+     * ---------------------------------------------------------------- */
+
+    /* 動きを へらす せっていの とき。
+       このアプリの アニメーションは どれも 始まりと 終わりが 同じ 見た目
+       （impactBounce も float も pulse も scale(1) / translateY(0) に もどる）
+       なので、とめても 途中の すがたで 止まったままには ならない。 */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+
+    /* ハイコントラスト（forced-colors）の とき。
+       ⚠️ この モードでは box-shadow が えがかれない。
+          .piece.selected は box-shadow だけで「えらんだ」ことを しめして
+          いたので、どれを えらんだのか わからなく なる。
+          outline は えがかれるので そちらで しめす。
+       こま自体は 🐧 と 🦭 の 絵文字で 見わけられるため、色が 置きかわっても
+       どちらの こまかは わかる。 */
+    @media (forced-colors: active) {
+      .piece.selected { outline: 4px solid Highlight; outline-offset: 2px; }
+      .piece { border-color: ButtonText; }
+      .cell.goal { border-color: Highlight; }
+    }
   </style>
 </head>
 <body>
