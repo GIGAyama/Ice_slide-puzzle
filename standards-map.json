@@ -12,5 +12,15 @@
       "canonical": "lib/run-giga-checks.mjs",
       "local": "scripts/check-standard.mjs"
     }
+  ],
+  "dirs": [
+    {
+      "canonical": "skills/devlog-article",
+      "local": ".claude/skills/devlog-article"
+    },
+    {
+      "canonical": "skills/note-article",
+      "local": ".claude/skills/note-article"
+    }
   ]
 }
