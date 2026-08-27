@@ -1,0 +1,32 @@
+{
+  "appId": "ice_slide_puzzle",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "scenarios": [
+    {
+      "id": "title_screen",
+      "title": "タイトル・盤面初期画面",
+      "description": "アプリ起動直後のゲーム盤面全体",
+      "actions": [
+        { "type": "wait", "ms": 500 }
+      ],
+      "capture": {
+        "output": "docs/note/images/screen-initial.png"
+      }
+    },
+    {
+      "id": "board_area",
+      "title": "ゲーム盤面クローズアップ",
+      "description": "パズル盤面のみの拡大撮影",
+      "actions": [
+        { "type": "wait", "ms": 500 }
+      ],
+      "capture": {
+        "selector": "main",
+        "output": "docs/note/images/screen-board.png"
+      }
+    }
+  ]
+}
