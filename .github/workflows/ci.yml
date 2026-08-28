@@ -14,9 +14,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      # 版の自動生成がずれていないか（手で上げる運用は 2026-08-21 の上げ忘れ事故のもと）
-      - name: SW の版が中身と一致しているか
-        run: node tools/build-sw.mjs --check
+      # ⚠️ package.json の check を呼ぶこと。ここに検査を 1 つずつ書き写すと、
+      #    check に足した検査が CI から漏れる。実際にそうなっていた:
+      #    このワークフローは build-sw --check だけを走らせていて、
+      #    npm run check のもう半分（正本ゲート scripts/check-standard.mjs の
+      #    共通検査 38 件）は一度も動いていなかった。
+      #    check = node scripts/check-standard.mjs && node tools/build-sw.mjs --check
+      - name: 品質ゲート（正本の共通検査 ＋ SW の版が中身と一致しているか）
+        run: npm run check
 
   # 正本（GIGAyama.github.io/standards/）との一致。コピーだけ直すと他リポジトリに修正が届かないため。
   drift:

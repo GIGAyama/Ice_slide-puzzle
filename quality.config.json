@@ -6,10 +6,6 @@
       "."
     ],
     "swVersionConst": "CACHE_VERSION",
-    "allowedRemoteScripts": [
-      "^https://fonts\\.googleapis\\.com(/|$)",
-      "^https://fonts\\.gstatic\\.com(/|$)"
-    ],
     "skips": [
       {
         "id": "A_DOCS",

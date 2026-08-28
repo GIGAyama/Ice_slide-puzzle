@@ -14,11 +14,15 @@
  */
 const CACHE_PREFIX = 'nankyoku-';
 // CACHE_VERSION は手で上げない。node tools/build-sw.mjs が先読み対象の中身から自動で決める
-const CACHE_VERSION = 'v35e42a16'; /* __APP_VERSION__ */
+const CACHE_VERSION = 'v34abb82c'; /* __APP_VERSION__ */
 const PRECACHE = `${CACHE_PREFIX}precache-${CACHE_VERSION}`;
 const RUNTIME = `${CACHE_PREFIX}runtime-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
+  // 書体そのもの（woff2）は先読みに入れない。入れると先読みが 1MB を超え、
+  // 校内 Wi-Fi で 40 台が同時に開いたときに初回表示が止まる。
+  // 画面が出れば必ず取りにいくので、その 1 回で下の実行時キャッシュに入る。
+  './fonts.css',
   './',
   './index.html',
   './manifest.webmanifest',
