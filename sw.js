@@ -14,7 +14,7 @@
  */
 const CACHE_PREFIX = 'nankyoku-';
 // CACHE_VERSION は手で上げない。node tools/build-sw.mjs が先読み対象の中身から自動で決める
-const CACHE_VERSION = 'v18493ec6'; /* __APP_VERSION__ */
+const CACHE_VERSION = 'v34abb82c'; /* __APP_VERSION__ */
 const PRECACHE = `${CACHE_PREFIX}precache-${CACHE_VERSION}`;
 const RUNTIME = `${CACHE_PREFIX}runtime-${CACHE_VERSION}`;
 
