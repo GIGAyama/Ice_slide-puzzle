@@ -1,0 +1,68 @@
+/* ==========================================================================
+ * Zen Maru Gothic
+ * SIL Open Font License 1.1 — 全文は fonts/OFL.txt
+ *
+ * このファイルは tools/fonts/build-fonts.mjs が生成する。**直接編集しないこと。**
+ * 作り直すには: node tools/fonts/build-fonts.mjs
+ *
+ * unicode-range は Google Fonts が返した値をそのまま使っている。ここに無い字
+ * （児童が入力した珍しい漢字など）は、このフォントを飛ばして端末内蔵フォントへ
+ * 落ちる。書体が変わるだけで、□（豆腐）にはならない。
+ *
+ * 面が複数あるのは、1 リクエストに載せられる字数に上限があるため。
+ * ブラウザは unicode-range を見て、実際に要る面だけを取りにいく。
+ * ========================================================================== */
+
+@font-face {
+  font-family: 'Zen Maru Gothic';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/zen-maru-gothic-500-1.woff2') format('woff2');
+  unicode-range: U+20-7e, U+a9, U+2010, U+2015, U+2025-2026, U+2032-2033, U+203b, U+2103, U+2190-2193, U+25a0-25a1, U+25b2-25b3, U+25cb, U+25ce-25cf, U+2605-2606, U+2661, U+266a, U+26a0, U+2713, U+2715, U+2744, U+3001-3002, U+3008-3011, U+3014-3015, U+301c, U+3041-30ff, U+4e00, U+4e03, U+4e07, U+4e09-4e0b, U+4e26, U+4e2d, U+4e38, U+4e57, U+4e5d, U+4e88, U+4e8c, U+4e94, U+4ea4, U+4eac, U+4eba, U+4eca, U+4ed5, U+4f11, U+4f1a, U+4f38, U+4f4d, U+4f53, U+4f55, U+4f59, U+4f5c, U+4f7f, U+4fe1, U+5074, U+5099, U+5143-5144, U+5148-5149, U+5165, U+5168, U+516b-516d, U+5185-5186, U+51a0, U+51ac, U+51fa, U+5200, U+5206-5207, U+521d, U+5224, U+524d, U+529b, U+52a0, U+52b9, U+52d5, U+52dd, U+5317, U+5341, U+5343, U+5348, U+534a, U+5357, U+5370, U+539f, U+53cb, U+53d6-53d7, U+53e3-53e4, U+53f0, U+53f3, U+53f7, U+5408, U+540c-540d, U+5411, U+56db, U+56de, U+56f3, U+56fa, U+56fd, U+5712, U+571f, U+5730, U+5782, U+578b, U+57df, U+57fa, U+5834, U+585e, U+58f0, U+58f2, U+5909, U+590f, U+5915-5916, U+591a, U+591c, U+5927, U+5929-592a, U+592e, U+596a, U+5973, U+59b9, U+59c9, U+59cb, U+5b50, U+5b57, U+5b66, U+5b88-5b89, U+5b9a, U+5b9f, U+5ba4, U+5bb6, U+5bfa, U+5bfe, U+5c0e-5c0f, U+5c11, U+5c4a, U+5c71, U+5ca9, U+5d29, U+5ddd, U+5de5-5de6, U+5e02, U+5e30, U+5e73-5e74, U+5e83, U+5e97, U+5ea6, U+5f13, U+5f15, U+5f1f, U+5f31, U+5f37, U+5f53, U+5f62, U+5f8c, U+5fc3, U+601d, U+610f, U+616e, U+6210, U+6226, U+6238, U+623b, U+624b, U+624d, U+6253, U+6271, U+6298, U+629e, U+62bc, U+62e1, U+6301, U+6307, U+631f, U+6368, U+639b, U+6483, U+64cd, U+6559, U+6570, U+6574, U+6587, U+65b0, U+65b9, U+65e2, U+65e5, U+65e9, U+660e, U+661f, U+6625, U+663c, U+6642, U+6674, U+66dc, U+66f4, U+66f8, U+66ff-6700, U+6708-6709, U+671d, U+6728, U+672b-672c, U+6751, U+6765, U+6771, U+6797, U+67fb, U+6821, U+6848, U+68ee, U+691c, U+6975, U+697d, U+6a2a, U+6b4c, U+6b62-6b63, U+6b69, U+6bb5, U+6bcd-6bce, U+6bd4, U+6bdb, U+6c17, U+6c34, U+6c37, U+6c60, U+6c7a, U+6c7d, U+6d3b, U+6d77, U+6e2c, U+6e80, U+6e96, U+6ed1, U+6f70, U+6fc3, U+706b, U+70b9, U+7121, U+7236, U+7248, U+725b, U+7269, U+72ac, U+72ec, U+7389, U+738b, U+73fe, U+7406, U+751f, U+7528, U+7530, U+7537, U+753a-753b, U+756a, U+767d-767e, U+76e4, U+76ee, U+76f4, U+76f8, U+77e2, U+77e5, U+77f3, U+793a, U+793e, U+7981, U+79cb, U+79d1, U+79fb, U+7a7a, U+7a81, U+7acb, U+7aef, U+7af9, U+7b54, U+7b97, U+7c73, U+7cf8, U+7d04, U+7d19, U+7d30, U+7d42, U+7d44, U+7d75, U+7dd1, U+7dda, U+7e26, U+7e2e, U+7f6e, U+7fa9, U+7fbd, U+8003, U+8033, U+805e, U+8089, U+81ea, U+8239, U+8272, U+82b1, U+8336, U+8349, U+843d, U+866b, U+884c, U+885d, U+8868, U+897f, U+898b, U+8996, U+89aa, U+89d2, U+89e6, U+8a00, U+8a08, U+8a18, U+8a2d, U+8a31, U+8a70-8a71, U+8a9e, U+8aad, U+8abf, U+8c37, U+8c61, U+8c9d, U+8cb7, U+8d64, U+8d70, U+8db3, U+8eca, U+8fbc, U+8fd1, U+8fd4, U+8ffd, U+9014, U+901a, U+9031, U+904a, U+9053, U+9060, U+9078, U+90e8, U+914d, U+91cc, U+91ce, U+91d1, U+9577, U+9580, U+9593, U+9632, U+96a0, U+96e8, U+96ea, U+96f2, U+96fb, U+9752, U+9762, U+97f3, U+9818, U+982d, U+9854, U+98a8, U+98db, U+98df, U+9996, U+99ac, U+9ad8, U+9b5a, U+9ce5, U+9cf4, U+9ea6, U+9ec4, U+9ed2, U+fe0f, U+ff01-ff54;
+}
+
+@font-face {
+  font-family: 'Zen Maru Gothic';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/zen-maru-gothic-500-2.woff2') format('woff2');
+  unicode-range: U+ff55-ff5e, U+ffe5;
+}
+
+@font-face {
+  font-family: 'Zen Maru Gothic';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./fonts/zen-maru-gothic-700-1.woff2') format('woff2');
+  unicode-range: U+20-7e, U+a9, U+2010, U+2015, U+2025-2026, U+2032-2033, U+203b, U+2103, U+2190-2193, U+25a0-25a1, U+25b2-25b3, U+25cb, U+25ce-25cf, U+2605-2606, U+2661, U+266a, U+26a0, U+2713, U+2715, U+2744, U+3001-3002, U+3008-3011, U+3014-3015, U+301c, U+3041-30ff, U+4e00, U+4e03, U+4e07, U+4e09-4e0b, U+4e26, U+4e2d, U+4e38, U+4e57, U+4e5d, U+4e88, U+4e8c, U+4e94, U+4ea4, U+4eac, U+4eba, U+4eca, U+4ed5, U+4f11, U+4f1a, U+4f38, U+4f4d, U+4f53, U+4f55, U+4f59, U+4f5c, U+4f7f, U+4fe1, U+5074, U+5099, U+5143-5144, U+5148-5149, U+5165, U+5168, U+516b-516d, U+5185-5186, U+51a0, U+51ac, U+51fa, U+5200, U+5206-5207, U+521d, U+5224, U+524d, U+529b, U+52a0, U+52b9, U+52d5, U+52dd, U+5317, U+5341, U+5343, U+5348, U+534a, U+5357, U+5370, U+539f, U+53cb, U+53d6-53d7, U+53e3-53e4, U+53f0, U+53f3, U+53f7, U+5408, U+540c-540d, U+5411, U+56db, U+56de, U+56f3, U+56fa, U+56fd, U+5712, U+571f, U+5730, U+5782, U+578b, U+57df, U+57fa, U+5834, U+585e, U+58f0, U+58f2, U+5909, U+590f, U+5915-5916, U+591a, U+591c, U+5927, U+5929-592a, U+592e, U+596a, U+5973, U+59b9, U+59c9, U+59cb, U+5b50, U+5b57, U+5b66, U+5b88-5b89, U+5b9a, U+5b9f, U+5ba4, U+5bb6, U+5bfa, U+5bfe, U+5c0e-5c0f, U+5c11, U+5c4a, U+5c71, U+5ca9, U+5d29, U+5ddd, U+5de5-5de6, U+5e02, U+5e30, U+5e73-5e74, U+5e83, U+5e97, U+5ea6, U+5f13, U+5f15, U+5f1f, U+5f31, U+5f37, U+5f53, U+5f62, U+5f8c, U+5fc3, U+601d, U+610f, U+616e, U+6210, U+6226, U+6238, U+623b, U+624b, U+624d, U+6253, U+6271, U+6298, U+629e, U+62bc, U+62e1, U+6301, U+6307, U+631f, U+6368, U+639b, U+6483, U+64cd, U+6559, U+6570, U+6574, U+6587, U+65b0, U+65b9, U+65e2, U+65e5, U+65e9, U+660e, U+661f, U+6625, U+663c, U+6642, U+6674, U+66dc, U+66f4, U+66f8, U+66ff-6700, U+6708-6709, U+671d, U+6728, U+672b-672c, U+6751, U+6765, U+6771, U+6797, U+67fb, U+6821, U+6848, U+68ee, U+691c, U+6975, U+697d, U+6a2a, U+6b4c, U+6b62-6b63, U+6b69, U+6bb5, U+6bcd-6bce, U+6bd4, U+6bdb, U+6c17, U+6c34, U+6c37, U+6c60, U+6c7a, U+6c7d, U+6d3b, U+6d77, U+6e2c, U+6e80, U+6e96, U+6ed1, U+6f70, U+6fc3, U+706b, U+70b9, U+7121, U+7236, U+7248, U+725b, U+7269, U+72ac, U+72ec, U+7389, U+738b, U+73fe, U+7406, U+751f, U+7528, U+7530, U+7537, U+753a-753b, U+756a, U+767d-767e, U+76e4, U+76ee, U+76f4, U+76f8, U+77e2, U+77e5, U+77f3, U+793a, U+793e, U+7981, U+79cb, U+79d1, U+79fb, U+7a7a, U+7a81, U+7acb, U+7aef, U+7af9, U+7b54, U+7b97, U+7c73, U+7cf8, U+7d04, U+7d19, U+7d30, U+7d42, U+7d44, U+7d75, U+7dd1, U+7dda, U+7e26, U+7e2e, U+7f6e, U+7fa9, U+7fbd, U+8003, U+8033, U+805e, U+8089, U+81ea, U+8239, U+8272, U+82b1, U+8336, U+8349, U+843d, U+866b, U+884c, U+885d, U+8868, U+897f, U+898b, U+8996, U+89aa, U+89d2, U+89e6, U+8a00, U+8a08, U+8a18, U+8a2d, U+8a31, U+8a70-8a71, U+8a9e, U+8aad, U+8abf, U+8c37, U+8c61, U+8c9d, U+8cb7, U+8d64, U+8d70, U+8db3, U+8eca, U+8fbc, U+8fd1, U+8fd4, U+8ffd, U+9014, U+901a, U+9031, U+904a, U+9053, U+9060, U+9078, U+90e8, U+914d, U+91cc, U+91ce, U+91d1, U+9577, U+9580, U+9593, U+9632, U+96a0, U+96e8, U+96ea, U+96f2, U+96fb, U+9752, U+9762, U+97f3, U+9818, U+982d, U+9854, U+98a8, U+98db, U+98df, U+9996, U+99ac, U+9ad8, U+9b5a, U+9ce5, U+9cf4, U+9ea6, U+9ec4, U+9ed2, U+fe0f, U+ff01-ff54;
+}
+
+@font-face {
+  font-family: 'Zen Maru Gothic';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./fonts/zen-maru-gothic-700-2.woff2') format('woff2');
+  unicode-range: U+ff55-ff5e, U+ffe5;
+}
+
+@font-face {
+  font-family: 'Zen Maru Gothic';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('./fonts/zen-maru-gothic-900-1.woff2') format('woff2');
+  unicode-range: U+20-7e, U+a9, U+2010, U+2015, U+2025-2026, U+2032-2033, U+203b, U+2103, U+2190-2193, U+25a0-25a1, U+25b2-25b3, U+25cb, U+25ce-25cf, U+2605-2606, U+2661, U+266a, U+26a0, U+2713, U+2715, U+2744, U+3001-3002, U+3008-3011, U+3014-3015, U+301c, U+3041-30ff, U+4e00, U+4e03, U+4e07, U+4e09-4e0b, U+4e26, U+4e2d, U+4e38, U+4e57, U+4e5d, U+4e88, U+4e8c, U+4e94, U+4ea4, U+4eac, U+4eba, U+4eca, U+4ed5, U+4f11, U+4f1a, U+4f38, U+4f4d, U+4f53, U+4f55, U+4f59, U+4f5c, U+4f7f, U+4fe1, U+5074, U+5099, U+5143-5144, U+5148-5149, U+5165, U+5168, U+516b-516d, U+5185-5186, U+51a0, U+51ac, U+51fa, U+5200, U+5206-5207, U+521d, U+5224, U+524d, U+529b, U+52a0, U+52b9, U+52d5, U+52dd, U+5317, U+5341, U+5343, U+5348, U+534a, U+5357, U+5370, U+539f, U+53cb, U+53d6-53d7, U+53e3-53e4, U+53f0, U+53f3, U+53f7, U+5408, U+540c-540d, U+5411, U+56db, U+56de, U+56f3, U+56fa, U+56fd, U+5712, U+571f, U+5730, U+5782, U+578b, U+57df, U+57fa, U+5834, U+585e, U+58f0, U+58f2, U+5909, U+590f, U+5915-5916, U+591a, U+591c, U+5927, U+5929-592a, U+592e, U+596a, U+5973, U+59b9, U+59c9, U+59cb, U+5b50, U+5b57, U+5b66, U+5b88-5b89, U+5b9a, U+5b9f, U+5ba4, U+5bb6, U+5bfa, U+5bfe, U+5c0e-5c0f, U+5c11, U+5c4a, U+5c71, U+5ca9, U+5d29, U+5ddd, U+5de5-5de6, U+5e02, U+5e30, U+5e73-5e74, U+5e83, U+5e97, U+5ea6, U+5f13, U+5f15, U+5f1f, U+5f31, U+5f37, U+5f53, U+5f62, U+5f8c, U+5fc3, U+601d, U+610f, U+616e, U+6210, U+6226, U+6238, U+623b, U+624b, U+624d, U+6253, U+6271, U+6298, U+629e, U+62bc, U+62e1, U+6301, U+6307, U+631f, U+6368, U+639b, U+6483, U+64cd, U+6559, U+6570, U+6574, U+6587, U+65b0, U+65b9, U+65e2, U+65e5, U+65e9, U+660e, U+661f, U+6625, U+663c, U+6642, U+6674, U+66dc, U+66f4, U+66f8, U+66ff-6700, U+6708-6709, U+671d, U+6728, U+672b-672c, U+6751, U+6765, U+6771, U+6797, U+67fb, U+6821, U+6848, U+68ee, U+691c, U+6975, U+697d, U+6a2a, U+6b4c, U+6b62-6b63, U+6b69, U+6bb5, U+6bcd-6bce, U+6bd4, U+6bdb, U+6c17, U+6c34, U+6c37, U+6c60, U+6c7a, U+6c7d, U+6d3b, U+6d77, U+6e2c, U+6e80, U+6e96, U+6ed1, U+6f70, U+6fc3, U+706b, U+70b9, U+7121, U+7236, U+7248, U+725b, U+7269, U+72ac, U+72ec, U+7389, U+738b, U+73fe, U+7406, U+751f, U+7528, U+7530, U+7537, U+753a-753b, U+756a, U+767d-767e, U+76e4, U+76ee, U+76f4, U+76f8, U+77e2, U+77e5, U+77f3, U+793a, U+793e, U+7981, U+79cb, U+79d1, U+79fb, U+7a7a, U+7a81, U+7acb, U+7aef, U+7af9, U+7b54, U+7b97, U+7c73, U+7cf8, U+7d04, U+7d19, U+7d30, U+7d42, U+7d44, U+7d75, U+7dd1, U+7dda, U+7e26, U+7e2e, U+7f6e, U+7fa9, U+7fbd, U+8003, U+8033, U+805e, U+8089, U+81ea, U+8239, U+8272, U+82b1, U+8336, U+8349, U+843d, U+866b, U+884c, U+885d, U+8868, U+897f, U+898b, U+8996, U+89aa, U+89d2, U+89e6, U+8a00, U+8a08, U+8a18, U+8a2d, U+8a31, U+8a70-8a71, U+8a9e, U+8aad, U+8abf, U+8c37, U+8c61, U+8c9d, U+8cb7, U+8d64, U+8d70, U+8db3, U+8eca, U+8fbc, U+8fd1, U+8fd4, U+8ffd, U+9014, U+901a, U+9031, U+904a, U+9053, U+9060, U+9078, U+90e8, U+914d, U+91cc, U+91ce, U+91d1, U+9577, U+9580, U+9593, U+9632, U+96a0, U+96e8, U+96ea, U+96f2, U+96fb, U+9752, U+9762, U+97f3, U+9818, U+982d, U+9854, U+98a8, U+98db, U+98df, U+9996, U+99ac, U+9ad8, U+9b5a, U+9ce5, U+9cf4, U+9ea6, U+9ec4, U+9ed2, U+fe0f, U+ff01-ff54;
+}
+
+@font-face {
+  font-family: 'Zen Maru Gothic';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('./fonts/zen-maru-gothic-900-2.woff2') format('woff2');
+  unicode-range: U+ff55-ff5e, U+ffe5;
+}
