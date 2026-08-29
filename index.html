@@ -90,7 +90,11 @@
       --font-main: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Yu Gothic UI',
                    'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
       --header-height: 56px;
-      --footer-height: 34px;
+      /* ⚠️ 34px から広げた（2026-08-29）。フッターの行き先リンクは、正本の部品
+         giga-app-links.js が出すものに替えた。あちらはタップ領域を 48px 持つ
+         （艦隊のルール 2）ので、34px のままだとフッターからはみ出す。
+         58px なのは、48px ＋ 部品の上下の余白 8px ＋ 上の罫線 1px から。 */
+      --footer-height: 58px;
       /* ターン表示＋余白ぶんの予約領域 */
       --reserved-height: 88px;
     }
@@ -256,7 +260,18 @@
       align-items: center;
     }
 
-    /* 横長の画面 (スマホ横持ちなど): フッターを隠し、ターン表示を横に並べる */
+    /* 細い画面では、著作権の行と行き先のリンクが 1 行に収まらず 2 段になる。
+       盤の大きさは --footer-height から計算しているので、ここを増やさないと
+       フッターが盤に重なる（390px の端末で 27px はみ出していた）。 */
+    @media (max-width: 600px) {
+      :root { --footer-height: 80px; }
+    }
+
+    /* 横長の画面 (スマホ横持ちなど): フッターを隠し、ターン表示を横に並べる
+
+       ⚠️ ここでフッターごと消えるので、利用規約とプライバシーへの行き先も
+          横持ちのあいだは辿れない。縦に戻せば出る。もとからそうなっていた
+          （「使い方を読む」も同じく消えていた）ので、そのままにしてある。 */
     @media (max-height: 540px) {
       :root {
         --footer-height: 0px;
@@ -412,6 +427,7 @@
       background: #fff;
       border-top: 1px solid #dee2e6;
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       align-items: center;
       font-size: 0.75rem;
@@ -559,12 +575,23 @@
     <button type="button">さいしんに する</button>
   </div>
 
-  <!-- フッター -->
+  <!-- フッター
+
+       ⚠️ 行き先のリンクを手で書かないこと。中身は正本の部品
+          standards/web/giga-app-links.js（配布物 web/giga-app-links.js）が
+          <div data-giga-links> の中に出す。文言も並びも行き先も、あちらで
+          決まっている。ここに手で書くと、次に文言が変わったときに
+          42 本ぶんの直し忘れが起きる。
+
+       ⚠️ data-links で「つかいかた」を外してある。このアプリにはまだ
+          docs/manual/ が無く、既定のまま出すと行き止まりのリンクになる。
+          マニュアルを書いたら、この属性ごと消すこと（既定は 3 つとも出る）。 -->
   <footer class="fixed-footer">
-    <small>© 2026 南極スライダー <a href="https://giga-school.com" target="_blank" rel="noopener">GIGA山</a>
-      <a href="https://giga-school.com/apps/ice-slide-puzzle/" target="_blank" rel="noopener">使い方を読む</a></small>
+    <small>© 2026 南極スライダー <a href="https://giga-school.com" target="_blank" rel="noopener">GIGA山</a></small>
+    <span data-giga-links data-links="terms,privacy"></span>
   </footer>
 
+  <script src="web/giga-app-links.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

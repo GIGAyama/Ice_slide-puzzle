@@ -14,7 +14,7 @@
  */
 const CACHE_PREFIX = 'nankyoku-';
 // CACHE_VERSION は手で上げない。node tools/build-sw.mjs が先読み対象の中身から自動で決める
-const CACHE_VERSION = 'v34abb82c'; /* __APP_VERSION__ */
+const CACHE_VERSION = 'v4733dfed'; /* __APP_VERSION__ */
 const PRECACHE = `${CACHE_PREFIX}precache-${CACHE_VERSION}`;
 const RUNTIME = `${CACHE_PREFIX}runtime-${CACHE_VERSION}`;
 
@@ -25,6 +25,10 @@ const PRECACHE_URLS = [
   './fonts.css',
   './',
   './index.html',
+  // 利用規約・プライバシーの行き先を出す部品。並べておかないと、圏外で開いた
+  // ときだけリンクが 1 本も出ない（行き先そのものは開けなくても、どこにあるかは
+  // 見えているほうがいい）。
+  './web/giga-app-links.js',
   './manifest.webmanifest',
   './offline.html',
   './favicon.png',
