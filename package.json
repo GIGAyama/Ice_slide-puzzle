@@ -10,6 +10,6 @@
     "check": "node scripts/check-standard.mjs && node tools/build-sw.mjs --check"
   },
   "devDependencies": {
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.4"
   }
 }
